@@ -8,7 +8,8 @@ const app = express();
 makes passport aware that a new strategy is available
 Creating a new instance of the GoogleStrat constructor
 we put in an object with the keys as the first argument and a callback url.
-2nd argument is the accesstoken function
+2nd argument is the function that acquires the data given by oauth
+Data that we asked for like the email and profile
 */
 passport.use(
   new GoogleStrategy(
@@ -17,8 +18,10 @@ passport.use(
       clientSecret: keys.googleClientSecret,
       callbackURL: '/auth/google/callback',
     },
-    (accessToken) => {
-      console.log(accessToken);
+    (accessToken, refreshToken, profile, done) => {
+      console.log('accessToken: ', accessToken);
+      console.log('refreshToken: ', refreshToken);
+      console.log('profile: ', profile);
     }
   )
 );
@@ -37,6 +40,13 @@ app.get(
     scope: ['profile', 'email'],
   })
 );
+
+/*
+This route is for when the user gives permission to give his/her account data. It is the callback for when the google code is given 
+to google and google authenticates and gives back the user's profile
+to our app server 
+*/
+app.get('/auth/google/callback', passport.authenticate('google'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);
