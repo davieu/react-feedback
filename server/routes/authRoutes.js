@@ -23,4 +23,18 @@ module.exports = (app) => {
   to our app server 
   */
   app.get('/auth/google/callback', passport.authenticate('google'));
+
+  app.get('/api/logout', (req, res) => {
+    req.logout();
+    res.send(req.user);
+  });
+
+  /*
+  when this route is called. It does the cookies process of
+  serializing/deserializing and returning the user object
+  Anytime req.user is used it refers to the logged in user
+  */
+  app.get('/api/current_user', (req, res) => {
+    res.send(req.user);
+  });
 };
