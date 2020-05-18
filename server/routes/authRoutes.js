@@ -35,6 +35,8 @@ module.exports = (app) => {
   Anytime req.user is used it refers to the logged in user
   */
   app.get('/api/current_user', (req, res) => {
+    // this req.session is the cookie
+    // res.send(req.session);
     res.send(req.user);
   });
 };
