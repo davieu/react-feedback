@@ -6,6 +6,25 @@ const keys = require('../config/keys');
 // pull a model out of mongoose to use
 const User = mongoose.model('users');
 
+// makes cookie
+passport.serializeUser((user, done) => {
+  // done(null means everything is okay, refers to the mongoDB ID instance not google profile ID)
+  /*
+  It is better to refer it to the mongoDB ID because if you might have
+  other OAUTH IDs for FB or twitter so it's better to refer to mongo ID
+  // the user.id (mongoID instance) will be turned into cookie
+  */
+  done(null, user.id);
+});
+
+// the cookie will be deserialized to see who is the user. turn the ID back into a mongoID instance
+passport.deserializeUser((id, done) => {
+  // finds the user by MongoID which was deserialized by passport
+  User.findById(id).then((user) => {
+    done(null, user);
+  });
+});
+
 /*
 makes passport aware that a new strategy is available
 Creating a new instance of the GoogleStrat constructor
@@ -22,15 +41,18 @@ passport.use(
     },
     (accessToken, refreshToken, profile, done) => {
       User.findOne({ googleId: profile.id }).then((existingUser) => {
-        if (!existingUser) {
-          console.log('ADDEDEDED');
-          new User({ googleId: profile.id }).save();
+        if (existingUser) {
+          // have existing record with the given profile ID
+          // done(null is for everything is fine, user record)
+          console.log('already have this record ID');
+          done(null, existingUser);
         } else {
-          console.log('User with ID already in DB: ' + existingUser);
+          // dont have the user record with this ID, create new record
+          new User({ googleId: profile.id })
+            .save()
+            .then((user) => done(null, user));
         }
       });
-
-      // new User({ googleId: profile.id }).save();
     }
   )
 );
