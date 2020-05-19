@@ -36,7 +36,7 @@ Data that we asked for like the email and profile
 passport.use(
   new GoogleStrategy(
     {
-      clientId: keys.googleClientID,
+      clientID: keys.googleClientID,
       clientSecret: keys.googleClientSecret,
       callbackURL: '/auth/google/callback',
       proxy: true,
